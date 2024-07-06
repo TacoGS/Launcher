@@ -35,7 +35,7 @@ bool PasteUpload::validateText()
 
 void PasteUpload::executeTask()
 {
-    QNetworkRequest request(QUrl("https://api.paste.ee/v1/pastes"));
+    QNetworkRequest request(QUrl("https://api.pastee.dev/v1/pastes"));
     request.setHeader(QNetworkRequest::UserAgentHeader, BuildConfig.USER_AGENT_UNCACHED);
 
     request.setRawHeader("Content-Type", "application/json");
@@ -45,7 +45,7 @@ void PasteUpload::executeTask()
     QNetworkReply *rep = APPLICATION->network()->post(request, m_jsonContent);
 
     m_reply = std::shared_ptr<QNetworkReply>(rep);
-    setStatus(tr("Uploading to paste.ee"));
+    setStatus(tr("Uploading to pastee.dev"));
     connect(rep, &QNetworkReply::uploadProgress, this, &Task::setProgress);
     connect(rep, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(downloadError(QNetworkReply::NetworkError)));
     connect(rep, SIGNAL(finished()), this, SLOT(downloadFinished()));
@@ -74,7 +74,7 @@ void PasteUpload::downloadFinished()
         }
         if (!parseResult(doc))
         {
-            emitFailed(tr("paste.ee returned an error. Please consult the logs for more information"));
+            emitFailed(tr("pastee.dev returned an error. Please consult the logs for more information"));
             return;
         }
     }
@@ -94,7 +94,7 @@ bool PasteUpload::parseResult(QJsonDocument doc)
     auto status = object.value("success").toBool();
     if (!status)
     {
-        qCritical() << "paste.ee reported error:" << QString(object.value("error").toString());
+        qCritical() << "pastee.dev reported error:" << QString(object.value("error").toString());
         return false;
     }
     m_pasteLink = object.value("link").toString();
